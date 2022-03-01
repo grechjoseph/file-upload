@@ -1,12 +1,16 @@
 version: "3"
 
+networks:
+  large-file-upload-network:
+
 # The same Docker image is used, but two containers are deployed to demonstrate a multiple-microservice environment.
 services:
   file-api:
     image: test/large-file-upload
     hostname: file-api
     container_name: file-api
-    network_mode: bridge
+    networks:
+      - large-file-upload-network
     expose:
       - 8080
     ports:
@@ -27,7 +31,8 @@ services:
     image: test/large-file-upload
     hostname: bridge-api
     container_name: bridge-api
-    network_mode: bridge
+    networks:
+      - large-file-upload-network
     links:
       - file-api
     ports:

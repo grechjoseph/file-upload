@@ -17,6 +17,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 @Slf4j
@@ -61,8 +63,8 @@ public class FileUploadController {
         requestFactory.setBufferRequestBody(false);
         requestFactory.setConnectTimeout(1000 * 120);
         requestFactory.setReadTimeout(1000 * 120);
-        // upload 16KB at a time.
-        requestFactory.setChunkSize(16 * 1024);
+        // upload 1MB at a time.
+        requestFactory.setChunkSize(1024 * 1024);
         restTemplate.setRequestFactory(requestFactory);
 
         return restTemplate.postForEntity(selfClientUrl + "/bridge-upload-to" +
@@ -83,16 +85,18 @@ public class FileUploadController {
         final InputStream inputStream = file.getInputStream();
         final OutputStream outputStream = new FileOutputStream(uploadDirectory + "/" + fileName);
 
-        // Read 16Kb at a time.
-        byte[] buffer = new byte[16 * 1024];
+        // Read 1MB at a time.
+        byte[] buffer = new byte[1024 * 1024];
         int totalBytesRead = 0;
         int bytesRead;
         log.info("Writing InputStream to OutputStream.");
         while ((bytesRead = inputStream.read(buffer)) != -1) {
             outputStream.write(buffer, 0, bytesRead);
             totalBytesRead += bytesRead;
-            final Double percentage = (100d * (double) totalBytesRead) / (double) fileSize;
-            System.out.println(new DecimalFormat("0.00").format(percentage) + "%");
+            final double percentage = (100d * (double) totalBytesRead) / (double) fileSize;
+            System.out.println(new DecimalFormat("0.00")
+                    .format(new BigDecimal(percentage).setScale(2, RoundingMode.DOWN).doubleValue())
+                    + "%");
         }
         log.info("Finished writing InputStream to OutputStream.");
         IOUtils.closeQuietly(inputStream);
