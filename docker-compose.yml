@@ -5,7 +5,10 @@ services:
   file-api:
     image: test/large-file-upload
     hostname: file-api
+    container_name: file-api
     network_mode: bridge
+    expose:
+      - 8080
     ports:
       - 8081:8080
       - 18081:18080
@@ -15,6 +18,7 @@ services:
           cpus: '1'
           memory: 256M
     environment:
+      FEIGN_SELFCLIENT_URL: http://localhost:8080
       UPLOAD_DIRECTORY: /uploads
       APPLICATION_ARGS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:18080
     volumes:
@@ -22,6 +26,7 @@ services:
   bridge-api:
     image: test/large-file-upload
     hostname: bridge-api
+    container_name: bridge-api
     network_mode: bridge
     links:
       - file-api
@@ -34,6 +39,7 @@ services:
           cpus: '1'
           memory: 256M
     environment:
+      FEIGN_SELFCLIENT_URL: http://file-api:8080
       UPLOAD_DIRECTORY: /uploads
       APPLICATION_ARGS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:18080
     volumes:
