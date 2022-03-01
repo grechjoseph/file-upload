@@ -34,7 +34,6 @@ services:
           cpus: '1'
           memory: 256M
     environment:
-      FEIGN_SELF_URL: http://file-api:8080
       UPLOAD_DIRECTORY: /uploads
       APPLICATION_ARGS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:18080
     volumes:
